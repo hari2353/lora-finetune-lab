@@ -23,6 +23,23 @@ pip install -r requirements.txt
 pytest -q    # data determinism, valid SFT records, loss decreases, F1 > random baseline, save/load round-trip
 ```
 
+## Hygiene layer (market-steal, 2026-11-18)
+
+The offline twin now matches what serious finetune labs treat as baseline:
+
+- **`stratified_split`** — deterministic train/val/test stratified by primary
+  skill; splits assign positions, so duplicate rows still land in exactly one
+  part; every skill appears in every part.
+- **`per_class_report`** — precision/recall/F1/support per label + macro-F1;
+  a bare micro-F1 hides dead labels.
+- **`ExperimentLog`** — append-only JSONL per run: config, dataset
+  fingerprint (hash of the canonical data), macro-F1; `best()` picks the
+  winner. Same seed ⇒ same fingerprint and same metrics (tested).
+- **Early stop + cosine schedule** — `fit(val_pairs=..., patience=N)` stops
+  on val-loss plateau (only after patience is exhausted), decays the LR on a
+  cosine over the full budget — mirroring the real path's
+  `EarlyStoppingCallback` and `lr_scheduler_type="cosine"` args.
+
 ## Real GPU path (Colab T4, free tier)
 
 See `notebooks/colab_t4.md` for copy-paste cells:

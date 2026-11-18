@@ -44,6 +44,35 @@ def generate_pairs(n_per_skill: int = 25, seed: int = 42) -> list[dict]:
     return pairs
 
 
+def stratified_split(pairs: list[dict], seed: int = 42,
+                     ratios: tuple[float, float, float] = (0.8, 0.1, 0.1)) -> dict[str, list[dict]]:
+    """Deterministic train/val/test split, stratified by each pair's primary
+    label. Splits assign POSITIONS, not row identities — duplicate rows in
+    the source data still land in exactly one part. Same seed ⇒ same split;
+    every skill contributes to every part (rare labels included)."""
+    assert abs(sum(ratios) - 1.0) < 1e-9, "ratios must sum to 1"
+    rng = random.Random(seed)
+    buckets: dict[str, list[int]] = {}
+    for index, pair in enumerate(pairs):
+        primary = pair["labels"][0] if pair["labels"] else "_unlabeled"
+        buckets.setdefault(primary, []).append(index)
+    parts: dict[str, list[int]] = {"train": [], "val": [], "test": []}
+    for primary in sorted(buckets):
+        indices = buckets[primary]
+        rng.shuffle(indices)
+        n = len(indices)
+        n_val = round(n * ratios[1])
+        n_test = round(n * ratios[2])
+        parts["val"].extend(indices[:n_val])
+        parts["test"].extend(indices[n_val:n_val + n_test])
+        parts["train"].extend(indices[n_val + n_test:])
+    return {
+        "train": [pairs[i] for i in parts["train"]],
+        "val": [pairs[i] for i in parts["val"]],
+        "test": [pairs[i] for i in parts["test"]],
+    }
+
+
 def save_csv(pairs: list[dict], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as fh:
