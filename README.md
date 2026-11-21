@@ -40,6 +40,23 @@ The offline twin now matches what serious finetune labs treat as baseline:
   cosine over the full budget — mirroring the real path's
   `EarlyStoppingCallback` and `lr_scheduler_type="cosine"` args.
 
+## Training footprint (Harvard Edge cross-pollination)
+
+`finetune_lab.footprint` reports the operational cost of a run beside its F1,
+following Harvard Edge's TinyML-Footprint boundary:
+
+```python
+training_carbon(gpu_hours=2.0, gpu_power_w=400, pue=1.15, carbon_intensity_g_per_kwh=400)
+# {'kwh': 0.92, 'kgco2e': 0.368, ...}
+
+lora_trainable_params(rank=16, modules=[(896, 896)] * 4)   # 114,688 trainable params
+lora_share(114_688, 494_032_768)                            # 0.000232 of the base model
+```
+
+GPU-hours is the measured input; power, PUE and grid carbon intensity are
+explicit assumptions. Embodied hardware is out of scope, matching
+TinyML-Footprint's operational boundary.
+
 ## Real GPU path (Colab T4, free tier)
 
 See `notebooks/colab_t4.md` for copy-paste cells:
