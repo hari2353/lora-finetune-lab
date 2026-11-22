@@ -57,7 +57,7 @@ GPU-hours is the measured input; power, PUE and grid carbon intensity are
 explicit assumptions. Embodied hardware is out of scope, matching
 TinyML-Footprint's operational boundary.
 
-## Real GPU path (Colab T4, free tier)
+## Distributed training memory (DeepSpeed ZeRO cross-pollination)\n\n`finetune_lab.zero.zero_memory` estimates per-GPU memory at ZeRO stages 0-3\n(sharding optimizer states, gradients, then parameters) from parameter counts\nand dtypes, so the stage choice can be made from numbers.\n\n## Real GPU path (Colab T4, free tier)
 
 See `notebooks/colab_t4.md` for copy-paste cells:
 
