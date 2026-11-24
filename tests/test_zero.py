@@ -11,7 +11,12 @@ def test_sharding_reduces_per_gpu_memory():
     s1 = zero_memory(params=1000, trainable_params=100, num_gpus=4, stage=1)
     s2 = zero_memory(params=1000, trainable_params=100, num_gpus=4, stage=2)
     s3 = zero_memory(params=1000, trainable_params=100, num_gpus=4, stage=3)
-    assert base["per_gpu_bytes"] > s1["per_gpu_bytes"] > s2["per_gpu_bytes"] > s3["per_gpu_bytes"]
+    assert (
+        base["per_gpu_bytes"]
+        > s1["per_gpu_bytes"]
+        > s2["per_gpu_bytes"]
+        > s3["per_gpu_bytes"]
+    )
 
 
 def test_single_gpu_all_stages_equal():

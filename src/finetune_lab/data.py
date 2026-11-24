@@ -38,14 +38,19 @@ def generate_pairs(n_per_skill: int = 25, seed: int = 42) -> list[dict]:
             if rng.random() < 0.35:
                 expected.append(other_sid)
                 if rng.random() < 0.5:
-                    text = text.replace(b, f"{b} {rng.choice(SKILL_PHRASES[other_sid])}")
+                    text = text.replace(
+                        b, f"{b} {rng.choice(SKILL_PHRASES[other_sid])}"
+                    )
             pairs.append({"text": text, "labels": sorted(expected)})
     rng.shuffle(pairs)
     return pairs
 
 
-def stratified_split(pairs: list[dict], seed: int = 42,
-                     ratios: tuple[float, float, float] = (0.8, 0.1, 0.1)) -> dict[str, list[dict]]:
+def stratified_split(
+    pairs: list[dict],
+    seed: int = 42,
+    ratios: tuple[float, float, float] = (0.8, 0.1, 0.1),
+) -> dict[str, list[dict]]:
     """Deterministic train/val/test split, stratified by each pair's primary
     label. Splits assign POSITIONS, not row identities — duplicate rows in
     the source data still land in exactly one part. Same seed ⇒ same split;
@@ -64,8 +69,8 @@ def stratified_split(pairs: list[dict], seed: int = 42,
         n_val = round(n * ratios[1])
         n_test = round(n * ratios[2])
         parts["val"].extend(indices[:n_val])
-        parts["test"].extend(indices[n_val:n_val + n_test])
-        parts["train"].extend(indices[n_val + n_test:])
+        parts["test"].extend(indices[n_val : n_val + n_test])
+        parts["train"].extend(indices[n_val + n_test :])
     return {
         "train": [pairs[i] for i in parts["train"]],
         "val": [pairs[i] for i in parts["val"]],
@@ -86,7 +91,12 @@ def load_csv(path: Path) -> list[dict]:
     out = []
     with path.open(newline="", encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
-            out.append({"text": row["text"], "labels": [x for x in row["labels"].split("|") if x]})
+            out.append(
+                {
+                    "text": row["text"],
+                    "labels": [x for x in row["labels"].split("|") if x],
+                }
+            )
     return out
 
 
@@ -98,12 +108,16 @@ def to_instruction_format(pairs: list[dict], id_to_name: dict[str, str]) -> list
         records.append(
             {
                 "messages": [
-                    {"role": "system", "content": "Extract skills from the text. Reply JSON: {\"skills\": [...] }"},
+                    {
+                        "role": "system",
+                        "content": 'Extract skills from the text. Reply JSON: {"skills": [...] }',
+                    },
                     {"role": "user", "content": pair["text"]},
-                    {"role": "assistant", "content": '{"skills": ' + json.dumps(names) + "}"}
+                    {
+                        "role": "assistant",
+                        "content": '{"skills": ' + json.dumps(names) + "}",
+                    },
                 ]
             }
         )
     return records
-
-

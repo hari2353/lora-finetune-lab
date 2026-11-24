@@ -28,7 +28,9 @@ def test_split_is_stratified_disjoint_deterministic(dataset) -> None:
     second = stratified_split(dataset, seed=42)
     assert [p["text"] for p in first["train"]] == [p["text"] for p in second["train"]]
     positions = [id(p) for part in first.values() for p in part]
-    assert len(positions) == len(set(positions))  # disjoint by position, duplicates included
+    assert len(positions) == len(
+        set(positions)
+    )  # disjoint by position, duplicates included
     assert len(positions) == len(dataset)
     train, val, test = (len(first[k]) for k in ("train", "val", "test"))
     assert abs(train - 0.8 * len(dataset)) <= 6  # proportions honored
@@ -50,17 +52,25 @@ def test_per_class_report_counts_every_label() -> None:
 
 
 # ── honest run log ───────────────────────────────────────────────────────────
-def test_run_log_records_config_fingerprint_metrics_and_picks_best(tmp_path, dataset) -> None:
+def test_run_log_records_config_fingerprint_metrics_and_picks_best(
+    tmp_path, dataset
+) -> None:
     log = ExperimentLog(tmp_path / "runs.jsonl")
     split = stratified_split(dataset, seed=42)
 
     for lr in (0.6, 0.3):
         trainer = MultiLabelTrainer(label_space=LABELS, lr=lr, epochs=10)
         stats = trainer.fit(split["train"], val_pairs=split["val"])
-        log.append(trainer=trainer, config={"lr": lr, "epochs": 10},
-                   dataset=split["train"], stats=stats)
+        log.append(
+            trainer=trainer,
+            config={"lr": lr, "epochs": 10},
+            dataset=split["train"],
+            stats=stats,
+        )
 
-    rows = [json.loads(line) for line in (tmp_path / "runs.jsonl").read_text().splitlines()]
+    rows = [
+        json.loads(line) for line in (tmp_path / "runs.jsonl").read_text().splitlines()
+    ]
     assert len(rows) == 2
     assert rows[0]["dataset_fingerprint"] == rows[1]["dataset_fingerprint"]  # same data
     assert rows[0]["config"]["lr"] == 0.6

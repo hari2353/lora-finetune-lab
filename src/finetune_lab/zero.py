@@ -4,6 +4,7 @@ Estimates per-GPU memory for a training run at each ZeRO stage, so the
 stage choice can be made from numbers instead of guesswork. Pure arithmetic;
 no DeepSpeed dependency.
 """
+
 from __future__ import annotations
 
 _VALID_STAGES = {0, 1, 2, 3}

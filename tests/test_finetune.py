@@ -5,7 +5,11 @@ import pytest
 
 from finetune_lab.data import generate_pairs, load_csv, save_csv, to_instruction_format
 from finetune_lab.mock_trainer import MultiLabelTrainer, micro_f1
-from finetune_lab.train_lora import DEFAULT_LORA_CONFIG, build_training_script, peft_available
+from finetune_lab.train_lora import (
+    DEFAULT_LORA_CONFIG,
+    build_training_script,
+    peft_available,
+)
 
 LABELS = ["esco__001", "esco__004", "esco__005", "esco__007", "esco__011", "esco__016"]
 
