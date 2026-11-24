@@ -10,7 +10,6 @@ from finetune_lab.data import generate_pairs, stratified_split
 from finetune_lab.mock_trainer import (
     ExperimentLog,
     MultiLabelTrainer,
-    micro_f1,
     per_class_report,
 )
 
